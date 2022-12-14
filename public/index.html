@@ -71,7 +71,7 @@
     let code = document.getElementById("code")
 
     // Events for Input Code & Checkmarks
-    code.addEventListener('keyup', debounce(() => update(), 500))
+    code.addEventListener('keyup', debounce(() => update(), 250))
     for (let val of ['hideRegion', 'hideWinLose', 'dontRoundRating', 'profileLink', 'leaderboardLink']) {
         document.getElementById(val).addEventListener('change', modifyQuery)
     }
