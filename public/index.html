@@ -4,6 +4,10 @@
         <form style="color: white;">
             <fieldset class="uk-fieldset">
                 <legend class="uk-legend" style="text-align: center;">Generate your command</legend>
+                <div style="text-align: center;">
+                    Customize and generate a command for <a style="color: cyan" href="https://nightbot.tv/" target="_blank">NightBot</a> with which you can show someone's rank.<br />
+                    Type in a slippi code, optionally check your wanted options and copy-paste the given command inside your twitch chat.
+                </div>
                 <div class="uk-margin uk-child-width-auto">
                     <label><input class="uk-checkbox" type="checkbox" id="hideRegion"> hide region</label>
                     <label><input class="uk-checkbox" type="checkbox" id="hideWinLose"> hide win/lose</label>
@@ -90,6 +94,8 @@
         command.textContent = `!commands add !rank $(urlfetch ${url})`
         if (code.value?.length > 0) {
             fetch(`http://${url}`).then((res) => res.text()).then((res) => result.innerHTML = linkify(res))
+        } else {
+            result.innerHTML = "<span style=\"color: red\">you have to type in a code</span>"
         }
     }
     update()
