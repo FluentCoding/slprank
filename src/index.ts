@@ -14,8 +14,9 @@ fetchLeaderboards((val: LeaderboardType) => leaderboards = val)
 const fastify = fastifyFactory(({
     http2: true,
     https: {
-      key: readFileSync('cert.key'),
-      cert: readFileSync('cert.crt')
+        allowHTTP1: true,
+        key: readFileSync('cert.key'),
+        cert: readFileSync('cert.crt')
     }
   }))
 fastify.get<{
