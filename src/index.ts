@@ -12,12 +12,12 @@ let leaderboards: LeaderboardType
 fetchLeaderboards((val: LeaderboardType) => leaderboards = val)
 
 const fastify = fastifyFactory(({
-    http2: true,
+    /*http2: true,
     https: {
         allowHTTP1: true,
         key: readFileSync('cert.key'),
         cert: readFileSync('cert.crt')
-    }
+    }*/
   }))
 fastify.get<{
     Params: {
@@ -76,7 +76,7 @@ fastify.get<{
 
 const start = async () => {
 try {
-    await fastify.listen({ host: "0.0.0.0", port: 443 })
+    await fastify.listen({ host: "0.0.0.0", port: 80 })
 } catch (err) {
     fastify.log.error(err)
     process.exit(1)
