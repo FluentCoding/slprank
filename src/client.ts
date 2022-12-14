@@ -1,10 +1,11 @@
 import axios from 'axios'
 import { FirebaseOptions, initializeApp } from 'firebase/app'
 import { getDatabase, onValue, ref } from 'firebase/database'
-import { LeaderboardType } from './types'
+import { readFileSync } from 'fs'
+import { LeaderboardType, RanksType } from './types'
 import { humanize } from './util'
-import { mapper } from './_ranks'
 
+let ranks: RanksType | undefined
 let leaderboards: LeaderboardType = {};
 export const fetchStats = async (code: string) => {
     const result = await axios.post('https://gql-gateway-dot-slippi.uc.r.appspot.com/graphql', {
@@ -36,12 +37,18 @@ export const fetchStats = async (code: string) => {
         }
 
         const rankProfile = user.rankedNetplayProfile
+
+        // Fetch rank from json
+        let ranks = await fetchRanks()
+        let rank = ranks?.[rankProfile?.dailyGlobalPlacement && rankProfile?.dailyRegionalPlacement ? 'true' : 'false']
+            .find((entry) => rankProfile?.ratingOrdinal >= entry.min && rankProfile?.ratingOrdinal <= entry.max)
+
         const result = {
             displayName: user.displayName,
             continent: humanize(rankProfile?.continent),
-            rank: mapper(rankProfile?.ratingOrdinal, rankProfile?.dailyGlobalPlacement && rankProfile?.dailyRegionalPlacement),
+            rank: rank?.name,
             leaderboardPlacement: rankPlacement,
-            rankRegion: rankRegion,
+            leaderboardRegion: rankRegion,
             rating: rankProfile?.ratingOrdinal,
             wins: rankProfile?.wins ?? 0,
             losses: rankProfile?.losses ?? 0,
@@ -76,4 +83,13 @@ export const fetchLeaderboards = () => {
             .filter((k) => !k.startsWith("__"))
             .reduce((a, v) => ({...a, [v]: data?.[v]?.map((profile: any) => profile?.user?.connectCode?.code)}), {}))
     });
+}
+
+export const fetchRanks = async () => {
+    if (!ranks) {
+        let result = await readFileSync('ranks.json')
+        ranks = JSON.parse(result as any)
+    }
+
+    return ranks
 }

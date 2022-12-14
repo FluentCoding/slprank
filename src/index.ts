@@ -3,12 +3,13 @@ dotenv.config()
 
 import fastifyFactory from "fastify"
 import path from 'path'
-import { fetchLeaderboards, fetchStats } from "./client"
+import { fetchLeaderboards, fetchRanks, fetchStats } from "./client"
 import { SuffixOptions } from "./types"
-import { formattedCodeIfValid, rankCase } from "./util"
+import { formattedCodeIfValid } from "./util"
 import fastifyStatic from '@fastify/static'
 
 fetchLeaderboards()
+fetchRanks()
 
 const fastify = fastifyFactory()
 
@@ -43,8 +44,8 @@ fastify.get<{
         }
 
         const rankPrefix = stats.leaderboardPlacement ?
-            `Rank ${stats.leaderboardPlacement}${query.hideRegion === undefined ? ` [${stats.rankRegion}]` : ""}` :
-            (rankCase(stats.rank) ?? "No rank")
+            `Rank ${stats.leaderboardPlacement}${query.hideRegion === undefined ? ` [${stats.leaderboardRegion}]` : ""}` :
+            (stats.rank ?? "No rank")
         let suffix = "";
         for (const key of (Object.keys(query) as ((keyof SuffixOptions))[])) {
             switch(key) {
