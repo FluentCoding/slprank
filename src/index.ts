@@ -4,12 +4,11 @@ dotenv.config()
 import fastifyFactory from "fastify"
 import path from 'path'
 import { fetchLeaderboards, fetchStats } from "./client"
-import { LeaderboardType, SuffixOptions } from "./types"
+import { SuffixOptions } from "./types"
 import { formattedCodeIfValid, rankCase } from "./util"
 import fastifyStatic from '@fastify/static'
 
-let leaderboards: LeaderboardType
-fetchLeaderboards((val: LeaderboardType) => leaderboards = val)
+fetchLeaderboards()
 
 const fastify = fastifyFactory()
 
@@ -25,6 +24,7 @@ fastify.get<{
         hideRegion: string
         hideWinLose: string
         dontRoundRating: string
+        raw: string
     } & SuffixOptions
 }>('/rank/:code', async (request, reply) => {
     const { code: urlCode } = request.params
@@ -38,22 +38,13 @@ fastify.get<{
         if (!stats)
             return "Couldn't fetch stats!"
 
-        let rankRegion
-        let rankPlacement
-
-        if (leaderboards) {
-            for (const region of Object.keys(leaderboards)) {
-                let placement = leaderboards[region].indexOf(code);
-
-                if (placement !== -1) {
-                    rankRegion = region.toUpperCase()
-                    rankPlacement = placement + 1
-                    break;
-                }
-            }
+        if (query.raw !== undefined) {
+            return stats
         }
 
-        const rankPrefix = rankPlacement ? `Rank ${rankPlacement}${query.hideRegion === undefined ? ` [${rankRegion}]` : ""}` : (rankCase(stats.rank) ?? "No rank")
+        const rankPrefix = stats.leaderboardPlacement ?
+            `Rank ${stats.leaderboardPlacement}${query.hideRegion === undefined ? ` [${stats.rankRegion}]` : ""}` :
+            (rankCase(stats.rank) ?? "No rank")
         let suffix = "";
         for (const key of (Object.keys(query) as ((keyof SuffixOptions))[])) {
             switch(key) {

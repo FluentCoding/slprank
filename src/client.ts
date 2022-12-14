@@ -5,6 +5,7 @@ import { LeaderboardType } from './types'
 import { humanize } from './util'
 import { mapper } from './_ranks'
 
+let leaderboards: LeaderboardType = {};
 export const fetchStats = async (code: string) => {
     const result = await axios.post('https://gql-gateway-dot-slippi.uc.r.appspot.com/graphql', {
         "operationName": "AccountManagementPageQuery",
@@ -18,11 +19,29 @@ export const fetchStats = async (code: string) => {
     const stats: any = result.data
     const user = stats?.data?.getConnectCode?.user
     if (user) {
+        // Fetch placement from leaderboards
+        let rankRegion
+        let rankPlacement
+
+        if (leaderboards) {
+            for (const region of Object.keys(leaderboards)) {
+                let placement = leaderboards[region].indexOf(code);
+
+                if (placement !== -1) {
+                    rankRegion = region.toUpperCase()
+                    rankPlacement = placement + 1
+                    break;
+                }
+            }
+        }
+
         const rankProfile = user.rankedNetplayProfile
         const result = {
             displayName: user.displayName,
             continent: humanize(rankProfile?.continent),
             rank: mapper(rankProfile?.ratingOrdinal, rankProfile?.dailyGlobalPlacement && rankProfile?.dailyRegionalPlacement),
+            leaderboardPlacement: rankPlacement,
+            rankRegion: rankRegion,
             rating: rankProfile?.ratingOrdinal,
             wins: rankProfile?.wins ?? 0,
             losses: rankProfile?.losses ?? 0,
@@ -38,7 +57,7 @@ export const fetchStats = async (code: string) => {
     }
 }
 
-export const fetchLeaderboards = (onUpdate: (val: LeaderboardType) => {}) => {
+export const fetchLeaderboards = () => {
     const firebaseConfig = JSON.parse(process.env.FIREBASE!) as FirebaseOptions;
     let app = initializeApp(firebaseConfig)
     let db = getDatabase(app)
@@ -53,7 +72,7 @@ export const fetchLeaderboards = (onUpdate: (val: LeaderboardType) => {}) => {
         const data = snapshot.val();
         console.log("new leaderboard arrived")
     
-        onUpdate(Object.keys(data)
+        leaderboards = (Object.keys(data)
             .filter((k) => !k.startsWith("__"))
             .reduce((a, v) => ({...a, [v]: data?.[v]?.map((profile: any) => profile?.user?.connectCode?.code)}), {}))
     });
