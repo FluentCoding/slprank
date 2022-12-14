@@ -7,7 +7,7 @@
                 <div class="uk-margin uk-child-width-auto">
                     <label><input class="uk-checkbox" type="checkbox" id="hideRegion"> hide region</label>
                     <label><input class="uk-checkbox" type="checkbox" id="hideWinLose"> hide win/lose</label>
-                    <label><input class="uk-checkbox" type="checkbox" id="removeDecimals"> remove decimals from rating</label>
+                    <label><input class="uk-checkbox" type="checkbox" id="dontRoundRating"> remove decimals from rating</label>
                     <label class="uk-margin-left">
                         your code:
                         <input
@@ -18,6 +18,10 @@
                             id="code"
                         >
                     </label>
+                </div>
+                <div class="uk-margin uk-child-width-auto">
+                    <label><input class="uk-checkbox" type="checkbox" id="profileLink"> show profile link</label>
+                    <label><input class="uk-checkbox" type="checkbox" id="leaderboardLink"> show leaderboard link</label>
                 </div>
                 <div class="uk-margin">
                     your command (nightbot): <span id="cmd" class="uk-card uk-card-small uk-card-default uk-card-body"></span>
@@ -37,16 +41,12 @@
 
     // Input Code
     let code = document.getElementById("code")
-    // Input Checkmarks
-    let hideRegion = document.getElementById("hideRegion")
-    let hideWinLose = document.getElementById("hideWinLose")
-    let removeDecimals = document.getElementById("removeDecimals")
 
-    // Events
+    // Events for Input Code & Checkmarks
     code.addEventListener('input', update)
-    hideRegion.addEventListener('change', modifyQuery)
-    hideWinLose.addEventListener('change', modifyQuery)
-    removeDecimals.addEventListener('change', modifyQuery)
+    for (let val of ['hideRegion', 'hideWinLose', 'dontRoundRating', 'profileLink', 'leaderboardLink']) {
+        document.getElementById(val).addEventListener('change', modifyQuery)
+    }
 
     let query = []
 
