@@ -29,10 +29,10 @@
                     <label><input class="uk-checkbox" type="checkbox" id="leaderboardLink"> show leaderboard link</label>
                 </div>
                 <div class="uk-margin">
-                    your command (nightbot): <span id="cmd" class="uk-card uk-card-small uk-card-default uk-card-body"></span>
+                    command that you have to write so nightbot can add the !rank command: <span id="cmd" class="uk-card uk-card-small uk-card-default uk-card-body"></span>
                 </div>
                 <div class="uk-margin">
-                    example result: <span id="result" class="uk-card uk-card-small uk-card-default uk-card-body"></span>
+                    what your viewers will see when writing !rank: <span id="result" class="uk-card uk-card-small uk-card-default uk-card-body"></span>
                 </div>
             </fieldset>
         </form>
@@ -95,7 +95,7 @@
         if (code.value?.length > 0) {
             fetch(`http://${url}`).then((res) => res.text()).then((res) => result.innerHTML = linkify(res))
         } else {
-            result.innerHTML = "<span style=\"color: red\">you have to type in a code</span>"
+            result.innerHTML = "<span style=\"color: red\">error: you have to type in the code of the person whose rank you want to display</span>"
         }
     }
     update()
