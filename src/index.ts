@@ -2,6 +2,8 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 import fastifyFactory from "fastify"
+import { readFileSync } from 'fs'
+import path from 'path'
 import { fetchLeaderboards, fetchStats } from "./client"
 import { LeaderboardType, SuffixOptions } from "./types"
 import { formattedCodeIfValid } from "./util"
@@ -9,7 +11,13 @@ import { formattedCodeIfValid } from "./util"
 let leaderboards: LeaderboardType
 fetchLeaderboards((val: LeaderboardType) => leaderboards = val)
 
-const fastify = fastifyFactory()
+const fastify = fastifyFactory(({
+    http2: true,
+    https: {
+      key: readFileSync(path.join(__dirname, 'cert.key')),
+      cert: readFileSync(path.join(__dirname, 'cert.crt'))
+    }
+  }))
 fastify.get<{
     Params: {
         code: string
