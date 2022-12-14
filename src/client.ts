@@ -3,6 +3,7 @@ import { FirebaseOptions, initializeApp } from 'firebase/app'
 import { getDatabase, onValue, ref } from 'firebase/database'
 import { LeaderboardType } from './types'
 import { humanize } from './util'
+import { mapper } from './_ranks'
 
 export const fetchStats = async (code: string) => {
     const result = await axios.post('https://gql-gateway-dot-slippi.uc.r.appspot.com/graphql', {
@@ -11,19 +12,21 @@ export const fetchStats = async (code: string) => {
             "cc": code,
             "uid": code
         },
-        "query": "fragment u on User {displayName rankedNetplayProfile{ratingOrdinal wins losses continent characters{character gameCount}}}query AccountManagementPageQuery($cc: String!, $uid: String!) {getUser(fbUid: $uid) {...u} getConnectCode(code: $cc) {user {...u}}}"
+        "query": "fragment u on User {displayName rankedNetplayProfile{ratingOrdinal wins losses dailyGlobalPlacement dailyRegionalPlacement continent characters{character gameCount}}}query AccountManagementPageQuery($cc: String!, $uid: String!) {getUser(fbUid: $uid) {...u} getConnectCode(code: $cc) {user {...u}}}"
     })
 
     const stats: any = result.data
     const user = stats?.data?.getConnectCode?.user
     if (user) {
         const rankProfile = user.rankedNetplayProfile
+        console.log(JSON.stringify(rankProfile))
         const result = {
             displayName: user.displayName,
             continent: humanize(rankProfile?.continent),
+            rank: mapper(rankProfile?.ratingOrdinal, rankProfile?.dailyGlobalPlacement && rankProfile?.dailyRegionalPlacement),
             rating: rankProfile?.ratingOrdinal,
-            wins: rankProfile?.wins,
-            losses: rankProfile?.losses,
+            wins: rankProfile?.wins ?? 0,
+            losses: rankProfile?.losses ?? 0,
             characters: rankProfile?.characters?.map((character: any) => ({
                 characterName: humanize(character.character),
                 gameCount: character.gameCount

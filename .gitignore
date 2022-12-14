@@ -2,3 +2,4 @@ node_modules
 build
 .env
 yarn-error.log
+_ranks.ts

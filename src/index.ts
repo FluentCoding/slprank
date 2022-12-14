@@ -2,24 +2,16 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 import fastifyFactory from "fastify"
-import { readFileSync } from 'fs'
 import path from 'path'
 import { fetchLeaderboards, fetchStats } from "./client"
 import { LeaderboardType, SuffixOptions } from "./types"
-import { formattedCodeIfValid } from "./util"
+import { formattedCodeIfValid, rankCase } from "./util"
 import fastifyStatic from '@fastify/static'
 
 let leaderboards: LeaderboardType
 fetchLeaderboards((val: LeaderboardType) => leaderboards = val)
 
-const fastify = fastifyFactory(({
-    /*http2: true,
-    https: {
-        allowHTTP1: true,
-        key: readFileSync('cert.key'),
-        cert: readFileSync('cert.crt')
-    }*/
-  }))
+const fastify = fastifyFactory()
 
 fastify.register(fastifyStatic, {
     root: path.join(__dirname, '../public'),
@@ -61,7 +53,7 @@ fastify.get<{
             }
         }
 
-        const rankPrefix = rankPlacement ? `Rank ${rankPlacement}${query.hideRegion === undefined ? ` [${rankRegion}]` : ""}` : "No rank"
+        const rankPrefix = rankPlacement ? `Rank ${rankPlacement}${query.hideRegion === undefined ? ` [${rankRegion}]` : ""}` : (rankCase(stats.rank) ?? "No rank")
         let suffix = "";
         for (const key of (Object.keys(query) as ((keyof SuffixOptions))[])) {
             switch(key) {
