@@ -16,6 +16,7 @@
                             placeholder="ABC#123"
                             aria-label="Code"
                             id="code"
+                            onkeydown="return event.key != 'Enter';"
                         >
                     </label>
                 </div>
@@ -35,6 +36,15 @@
 </div>
 
 <script>
+    // Util
+    function debounce(callback, wait) {
+       let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(function () { callback.apply(this, args); }, wait);
+        };
+    }
+
     // Output
     let command = document.getElementById("cmd")
     let result = document.getElementById("result")
@@ -43,7 +53,7 @@
     let code = document.getElementById("code")
 
     // Events for Input Code & Checkmarks
-    code.addEventListener('input', update)
+    code.addEventListener('keyup', debounce(() => update(), 500))
     for (let val of ['hideRegion', 'hideWinLose', 'dontRoundRating', 'profileLink', 'leaderboardLink']) {
         document.getElementById(val).addEventListener('change', modifyQuery)
     }
