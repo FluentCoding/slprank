@@ -89,11 +89,11 @@
 
     function update() {
         let queryText = query.length == 0 ? "" : "?" + query.reduce((p, v) => p + "&" + v, "").substring(1)
-        let url = `slprank.com/rank/${code.value.replace("#", "-").toLowerCase()}${queryText}`
+        let url = `http://slprank.com/rank/${code.value.replace("#", "-").toLowerCase()}${queryText}`
 
         command.textContent = `!commands add !rank $(urlfetch ${url})`
         if (code.value?.length > 0) {
-            fetch(`http://${url}`).then((res) => res.text()).then((res) => result.innerHTML = linkify(res))
+            fetch(url).then((res) => res.text()).then((res) => result.innerHTML = linkify(res))
         } else {
             result.innerHTML = "<span style=\"color: red\">error: you have to type in the code of the person whose rank you want to display</span>"
         }
