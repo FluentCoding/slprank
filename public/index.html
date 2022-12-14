@@ -1,0 +1,72 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.15.18/dist/css/uikit.min.css" />
+<div class="uk-background-primary" style="width: 100vw; height: 100vh;">
+    <div class="uk-position-center">
+        <form style="color: white;">
+            <fieldset class="uk-fieldset">
+                <legend class="uk-legend" style="text-align: center;">Generate your command</legend>
+                <div class="uk-margin uk-child-width-auto">
+                    <label><input class="uk-checkbox" type="checkbox" id="hideRegion"> hide region</label>
+                    <label><input class="uk-checkbox" type="checkbox" id="hideWinLose"> hide win/lose</label>
+                    <label><input class="uk-checkbox" type="checkbox" id="removeDecimals"> remove decimals from rating</label>
+                    <label class="uk-margin-left">
+                        your code:
+                        <input
+                            class="uk-input uk-form-width-small"
+                            type="text"
+                            placeholder="ABC#123"
+                            aria-label="Code"
+                            id="code"
+                        >
+                    </label>
+                </div>
+                <div class="uk-margin">
+                    your command (nightbot): <span id="cmd" class="uk-card uk-card-small uk-card-default uk-card-body"></span>
+                </div>
+                <div class="uk-margin">
+                    example result: <span id="result" class="uk-card uk-card-small uk-card-default uk-card-body"></span>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Output
+    let command = document.getElementById("cmd")
+    let result = document.getElementById("result")
+
+    // Input Code
+    let code = document.getElementById("code")
+    // Input Checkmarks
+    let hideRegion = document.getElementById("hideRegion")
+    let hideWinLose = document.getElementById("hideWinLose")
+    let removeDecimals = document.getElementById("removeDecimals")
+
+    // Events
+    code.addEventListener('input', update)
+    hideRegion.addEventListener('change', modifyQuery)
+    hideWinLose.addEventListener('change', modifyQuery)
+    removeDecimals.addEventListener('change', modifyQuery)
+
+    let query = []
+
+    function modifyQuery(ev) {
+        console.log(ev)
+        if (ev.target.checked)
+            query.push(ev.target.id)
+        else
+            query = query.filter((el) => el !== ev.target.id)
+        update()
+    }
+
+    function update() {
+        let queryText = query.length == 0 ? "" : "?" + query.reduce((p, v) => p + "&" + v, "").substring(1)
+        let url = `slprank.com/rank/${code.value.replace("#", "-").toLowerCase()}${queryText}`
+
+        command.textContent = `!commands add !rank $(urlfetch ${url})`
+        if (code.value?.length > 0) {
+            fetch(`http://${url}`).then((res) => res.text()).then((res) => result.textContent = res)
+        }
+    }
+    update()
+</script>

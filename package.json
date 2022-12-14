@@ -7,6 +7,7 @@
     "start": "tsc && node build/index.js"
   },
   "dependencies": {
+    "@fastify/static": "^6.6.0",
     "axios": "^1.2.1",
     "dotenv": "^16.0.3",
     "fastify": "^4.10.2",

@@ -7,6 +7,7 @@ import path from 'path'
 import { fetchLeaderboards, fetchStats } from "./client"
 import { LeaderboardType, SuffixOptions } from "./types"
 import { formattedCodeIfValid } from "./util"
+import fastifyStatic from '@fastify/static'
 
 let leaderboards: LeaderboardType
 fetchLeaderboards((val: LeaderboardType) => leaderboards = val)
@@ -19,6 +20,11 @@ const fastify = fastifyFactory(({
         cert: readFileSync('cert.crt')
     }*/
   }))
+
+fastify.register(fastifyStatic, {
+    root: path.join(__dirname, '../public'),
+})
+
 fastify.get<{
     Params: {
         code: string
