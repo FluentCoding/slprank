@@ -20,7 +20,6 @@ fastify.get<{
         dontRoundRating: string
     } & SuffixOptions
 }>('/rank/:code', async (request, reply) => {
-    // https://slippi.gg/user/salt-747
     const { code: urlCode } = request.params
     const query = request.query
 
