@@ -35,7 +35,7 @@ export const fetchStats = async (code: string) => {
 }
 
 export const fetchLeaderboards = (onUpdate: (val: LeaderboardType) => {}) => {
-    const firebaseConfig = JSON.parse(process.env.firebase!) as FirebaseOptions;
+    const firebaseConfig = JSON.parse(process.env.FIREBASE!) as FirebaseOptions;
     let app = initializeApp(firebaseConfig)
     let db = getDatabase(app)
     
