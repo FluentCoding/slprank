@@ -19,7 +19,6 @@ export const fetchStats = async (code: string) => {
     const user = stats?.data?.getConnectCode?.user
     if (user) {
         const rankProfile = user.rankedNetplayProfile
-        console.log(JSON.stringify(rankProfile))
         const result = {
             displayName: user.displayName,
             continent: humanize(rankProfile?.continent),
@@ -32,6 +31,8 @@ export const fetchStats = async (code: string) => {
                 gameCount: character.gameCount
             }))
         }
+
+        console.log(`${result.displayName} fetched (rank: ${result.rank}, code: ${code})`)
 
         return result
     }
