@@ -76,7 +76,7 @@ fastify.get<{
 
 const start = async () => {
 try {
-    await fastify.listen({ host: "0.0.0.0", port: 80 })
+    await fastify.listen({ host: "0.0.0.0", port: 443 })
 } catch (err) {
     fastify.log.error(err)
     process.exit(1)
