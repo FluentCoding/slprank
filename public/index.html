@@ -11,7 +11,7 @@
                 <div class="uk-margin uk-child-width-auto">
                     <label><input class="uk-checkbox" type="checkbox" id="hideRegion"> hide region</label>
                     <label><input class="uk-checkbox" type="checkbox" id="hideWinLose"> hide win/lose</label>
-                    <label><input class="uk-checkbox" type="checkbox" id="dontRoundRating"> remove decimals from rating</label>
+                    <label><input class="uk-checkbox" type="checkbox" id="roundRating"> remove decimals from rating</label>
                     <label class="uk-margin-left">
                         your code:
                         <input
@@ -72,7 +72,7 @@
 
     // Events for Input Code & Checkmarks
     code.addEventListener('keyup', debounce(() => update(), 250))
-    for (let val of ['hideRegion', 'hideWinLose', 'dontRoundRating', 'profileLink', 'leaderboardLink']) {
+    for (let val of ['hideRegion', 'hideWinLose', 'roundRating', 'profileLink', 'leaderboardLink']) {
         document.getElementById(val).addEventListener('change', modifyQuery)
     }
 

@@ -24,7 +24,8 @@ fastify.get<{
     Querystring: {
         hideRegion: string
         hideWinLose: string
-        dontRoundRating: string
+        roundRating: string
+        dontRoundRating: string // legacy, keeping it so links using this work as intended
         raw: string
     } & SuffixOptions
 }>('/rank/:code', async (request, reply) => {
@@ -60,7 +61,7 @@ fastify.get<{
             }
         }
         
-        return `${rankPrefix} (${stats.rating.toFixed(query.dontRoundRating === undefined ? 2 : 0)}${query.hideWinLose === undefined ? ` - ${stats.wins}W/${stats.losses}L` : ""})${suffix}`
+        return `${rankPrefix} (${stats.rating.toFixed((query.roundRating === undefined && query.dontRoundRating === undefined) ? 2 : 0)}${query.hideWinLose === undefined ? ` - ${stats.wins}W/${stats.losses}L` : ""})${suffix}`
     } else {
         return "Given code is not valid! Please check the URL of the command, the code should be formatted like abc-123 instead of ABC#123."
     }
