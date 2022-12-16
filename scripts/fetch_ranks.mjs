@@ -3,7 +3,7 @@
 // without having to find them in the source js manually + format them.
 
 import { writeFileSync } from "fs"
-import BigNumber from "./bignum.mjs"
+import BigNumber from "./include/bignum.mjs"
 
 // Utilities
 const BASE_URL = "https://slippi.gg/"
