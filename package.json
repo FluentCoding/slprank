@@ -4,7 +4,8 @@
   "main": "src/index.ts",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon"
+    "start": "nodemon",
+    "generate-ranks": "node scripts/fetch_ranks.mjs"
   },
   "dependencies": {
     "@fastify/static": "^6.6.0",
