@@ -8,7 +8,7 @@ import { humanize } from './util'
 let ranks: RanksType | undefined
 let leaderboards: LeaderboardType = {};
 export const fetchStats = async (code: string) => {
-    const result = await axios.post('https://gql-gateway-dot-slippi.uc.r.appspot.com/graphql', {
+    const result = await axios.post(process.env.SLIPPI_GRAPHQL!, {
         "operationName": "AccountManagementPageQuery",
         "variables": {
             "cc": code,
@@ -65,7 +65,7 @@ export const fetchStats = async (code: string) => {
 }
 
 export const fetchLeaderboards = () => {
-    const firebaseConfig = JSON.parse(process.env.FIREBASE!) as FirebaseOptions;
+    const firebaseConfig = JSON.parse(process.env.SLIPPI_FIREBASE!) as FirebaseOptions;
     let app = initializeApp(firebaseConfig)
     let db = getDatabase(app)
     

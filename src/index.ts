@@ -53,7 +53,9 @@ fastify.get<{
                     suffix += ` https://slippi.gg/user/${code.replace("#", "-").toLowerCase()}`
                     break
                 case 'leaderboardLink':
-                    suffix += ` https://slippi.gg/leaderboards`
+                    // we only want the suffix if we were able to determine the player's region and it's not NA
+                    let leaderboardRegionSuffix = !["NA", undefined].includes(stats.leaderboardRegion) ? `?region=${stats.leaderboardRegion!.toLowerCase()}` : ""
+                    suffix += ` https://slippi.gg/leaderboards${leaderboardRegionSuffix}`
                     break
             }
         }
@@ -66,7 +68,7 @@ fastify.get<{
 
 const start = async () => {
 try {
-    await fastify.listen({ host: "0.0.0.0", port: 80 })
+    await fastify.listen({ host: process.env.ADDRESS!, port: parseInt(process.env.PORT!) })
 } catch (err) {
     fastify.log.error(err)
     process.exit(1)
