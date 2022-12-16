@@ -5,6 +5,7 @@
 import { writeFileSync } from "fs"
 import BigNumber from "./bignum.mjs"
 
+// Utilities
 const BASE_URL = "https://slippi.gg/"
 const matchFirstOr = (base, regex, error) => {
     const match = base.match(regex)?.[0]
@@ -13,8 +14,11 @@ const matchFirstOr = (base, regex, error) => {
 
     return match
 }
+const CUSTOM_RANK_OVERRIDE = {
+    'plat': 'platinum'
+}
 // converts bronze3 to Bronze 3, grandmaster to Grandmaster, etc.
-export function rankCase(str) {
+const rankCase = (str) => {
     var splitStr = str.toLowerCase().split(' ');
     for (var i = 0; i < splitStr.length; i++) {
         splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
@@ -56,44 +60,57 @@ const rankFunc = await (async () => {
     return `let EU=new Proxy({}, {get: (target, prop) => prop});const mapper=(${ratingVarName}, ${conditionalVarName})=>${func};`
 })()
 
-let ranks = {'true': [], 'false': []}
-const RANK_STEP = new BigNumber(0.01)
+let toExecuteInEval = () => {
+    let ranks = {'true': [], 'false': []}
+    const RANK_STEP = new BigNumber(0.01)
+    for (let i = 0; i < 2; i++) {
+        let secondParamTrue = i % 2
+        let currentRanksArr = ranks[new Boolean(secondParamTrue).toString()]
+        let lastRankEntry
 
-for (let i = 0; i < 2; i++) {
-    let secondParamTrue = i % 2;
-    let secondParamTrueStr = secondParamTrue ? 'true' : 'false'
-    let currentRanksArr = ranks[secondParamTrueStr]
-    let lastRankEntry
+        for (let i = new BigNumber(3000); i.comparedTo(0) >= 0; i = i.minus(RANK_STEP)) {
+            const rankName = mapper(i, secondParamTrue)
 
-    for (let i = new BigNumber(3000); i.comparedTo(0) >= 0; i = i.minus(RANK_STEP)) {
-        let rankName = eval(`${rankFunc}mapper(${i}, ${secondParamTrueStr})`)
+            if (lastRankEntry && lastRankEntry?.name !== rankName)
+                lastRankEntry.min = i.plus(RANK_STEP)
 
-        if (lastRankEntry && lastRankEntry?.name !== rankName)
-            lastRankEntry.min = i.plus(RANK_STEP)
+            let rankEntry = currentRanksArr.find((rank) => rank.name === rankName)
 
-        let rankEntry = currentRanksArr.find((rank) => rank.name === rankName)
-
-        if (!rankEntry) {
-            rankEntry = {
-                name: rankName,
-                max: i,
-                min: i.plus(RANK_STEP)
+            if (!rankEntry) {
+                rankEntry = {
+                    name: rankName,
+                    max: i,
+                    min: i.plus(RANK_STEP)
+                }
+                currentRanksArr.push(rankEntry)
             }
-            currentRanksArr.push(rankEntry)
-        }
 
-        rankEntry.min = rankEntry.min.minus(RANK_STEP)
-        lastRankEntry = rankEntry
+            rankEntry.min = rankEntry.min.minus(RANK_STEP)
+            lastRankEntry = rankEntry
+        }
     }
+
+    return ranks
 }
+
+let ranks = eval(`${rankFunc}(${toExecuteInEval.toString()})()`)
 
 const formattedRanks = {}
 
-Object.keys(ranks).forEach((key) => formattedRanks[key] = ranks[key].map((rankEntry) => ({
-    name: rankCase(rankEntry.name),
-    max: rankEntry.max.toNumber(),
-    min: rankEntry.min.toNumber()
-})))
+Object.keys(ranks).forEach((key) => formattedRanks[key] = ranks[key].map((rankEntry) => {
+    let override = Object.entries(CUSTOM_RANK_OVERRIDE).find((e) => rankEntry.name.startsWith(e[0]))
+
+    if (override) {
+        // apply override (e.g. Plat => Platinum)
+        rankEntry.name = rankEntry.name.replace(override[0], override[1])
+    }
+
+    return {
+        name: rankCase(rankEntry.name),
+        max: rankEntry.max.toNumber(),
+        min: rankEntry.min.toNumber()
+    }
+}))
 
 console.log(formattedRanks)
 writeFileSync('ranks.json', JSON.stringify(formattedRanks, null, 2))
