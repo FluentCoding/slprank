@@ -14,7 +14,7 @@ export const fetchStats = async (code: string) => {
             "cc": code,
             "uid": code
         },
-        "query": "fragment u on User {displayName rankedNetplayProfile{ratingOrdinal wins losses dailyGlobalPlacement dailyRegionalPlacement continent characters{character gameCount}}}query AccountManagementPageQuery($cc: String!, $uid: String!) {getUser(fbUid: $uid) {...u} getConnectCode(code: $cc) {user {...u}}}"
+        "query": "fragment u on User{displayName rankedNetplayProfile{ratingOrdinal wins losses dailyGlobalPlacement dailyRegionalPlacement continent characters{character gameCount}}}query AccountManagementPageQuery($cc: String!,$uid: String!){getUser(fbUid: $uid){...u}getConnectCode(code: $cc){user {...u}}}"
     })
 
     const stats: any = result.data
