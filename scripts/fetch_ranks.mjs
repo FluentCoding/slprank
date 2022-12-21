@@ -2,7 +2,7 @@
 // It might break sooner or later but this helps me to efficiently create mappings
 // without having to find them in the source js manually + format them.
 
-import { existsSync, fstat, mkdirSync, write, writeFileSync } from "fs"
+import { existsSync, mkdirSync, writeFileSync } from "fs"
 import BigNumber from "bignumber.js"
 import sharp from 'sharp'
 
