@@ -2,8 +2,9 @@
 // It might break sooner or later but this helps me to efficiently create mappings
 // without having to find them in the source js manually + format them.
 
-import { writeFileSync } from "fs"
+import { fstat, write, writeFileSync } from "fs"
 import BigNumber from "./include/bignum.mjs"
+import sharp from 'sharp'
 
 // Utilities
 const BASE_URL = "https://slippi.gg/"
@@ -33,7 +34,7 @@ const rankCase = (str) => {
 
 // Step 1: Fetch html page of any slippi profile (we don't care about the dynamic/js
 // part of it, we only need the imported script)
-const script = await (async () => {
+const js = await (async () => {
     const html = await fetch(new URL("user/flcd-507", BASE_URL).href).then(res => res.text())
     const includedScript = matchFirstOr(
         html,
@@ -42,22 +43,24 @@ const script = await (async () => {
     )
 
     console.log("[1] Script found")
-    return new URL(includedScript, BASE_URL).href
+    return await fetch(new URL(includedScript, BASE_URL).href).then(res => res.text())
 })()
 
-// Step 2: Fetch ranks from script by parsing the function which checks 
+// Step 2: Fetch ranks from script by parsing the function which maps rating => rank
+// We also want to fetch rank images
 const rankFunc = await (async () => {
-    console.log(script)
-    const js = await fetch(script).then(res => res.text())
     let func = matchFirstOr(js, /(?<=pending:)e.+?bronze1/, "Couldn't find mapping function.")
-    const rankNamePrefix = matchFirstOr(func, /[A-z]+?\./g, "Couldn't find prefix of rank names.")
+    const rankNamePrefix = matchFirstOr(func, /[A-z]+?(?=\.)/g, "Couldn't find prefix of rank names.")
     const ratingVarName = matchFirstOr(func, /[A-z](?=[ >=])/, "Couldn't find variable name of rating")
     // conditional only existed in grandmaster check thus far
     const conditionalVarName = matchFirstOr(func, /(?<=[& ])[A-z]/, "Couldn't find variable name of conditional")
 
     // format rank names properly
     console.log("[2] Rank function found")
-    return `let EU=new Proxy({}, {get: (target, prop) => prop});const mapper=(${ratingVarName}, ${conditionalVarName})=>${func};`
+    return `
+        const ${rankNamePrefix}=new Proxy({},{get:(target,prop)=>prop});
+        const mapper=(${ratingVarName},${conditionalVarName})=>${func};
+    `
 })()
 
 let toExecuteInEval = () => {
@@ -68,6 +71,7 @@ let toExecuteInEval = () => {
         let currentRanksArr = ranks[new Boolean(secondParamTrue).toString()]
         let lastRankEntry
 
+        // go through every possible rank (we use 0-3000 for this case)
         for (let i = new BigNumber(3000); i.comparedTo(0) >= 0; i = i.minus(RANK_STEP)) {
             const rankName = mapper(i, secondParamTrue)
 
@@ -116,3 +120,21 @@ console.log(formattedRanks)
 writeFileSync('ranks.json', JSON.stringify(formattedRanks, null, 2))
 
 console.log("[3] Ranks saved")
+
+const rankImagesFunc = await (async () => {
+    let imageFunc = matchFirstOr(js, /var uW=.+?static\/media\/rank.+?grandmaster.+?svg"}/g, "Couldn't find image func.")
+    
+    const imageMap = eval(`
+        const n={p:""};
+        (()=>{${imageFunc};return jW})();
+    `)
+    
+    for (const key of Object.keys(imageMap)) {
+        const svg = await fetch(`${BASE_URL}${imageMap[key]}`).then(res => res.arrayBuffer())
+        const filePath = `public/imgs/${rankCase(key)}.png`
+
+        writeFileSync(filePath, await sharp(new Uint8Array(svg)).png().toBuffer())
+    }
+})()
+
+console.log("[4] Rank images saved and converted to PNG")
