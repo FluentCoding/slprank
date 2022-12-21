@@ -1,5 +1,4 @@
 const connectCodePattern = /^([A-Za-z0-9])+#[0-9]{1,6}$/
-const ratingToRank = []
 
 export function humanize(input: string) {
     if (input)
