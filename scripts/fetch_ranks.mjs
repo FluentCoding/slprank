@@ -2,7 +2,7 @@
 // It might break sooner or later but this helps me to efficiently create mappings
 // without having to find them in the source js manually + format them.
 
-import { fstat, write, writeFileSync } from "fs"
+import { existsSync, fstat, mkdirSync, write, writeFileSync } from "fs"
 import BigNumber from "./include/bignum.mjs"
 import sharp from 'sharp'
 
@@ -20,16 +20,23 @@ const CUSTOM_RANK_OVERRIDE = {
 }
 // converts bronze3 to Bronze 3, grandmaster to Grandmaster, etc.
 const rankCase = (str) => {
+    let override = Object.entries(CUSTOM_RANK_OVERRIDE).find((e) => str.startsWith(e[0]))
+
+    if (override) {
+        // apply override (e.g. Plat => Platinum)
+        str = str.replace(override[0], override[1])
+    }
+
     var splitStr = str.toLowerCase().split(' ');
     for (var i = 0; i < splitStr.length; i++) {
         splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
     }
     // Directly return the joined string
-    const result = splitStr.join(' ');
-    if (isNaN(result.charAt(result.length - 1)))
-        return result
-    else
-        return `${result.substr(0, result.length - 1)} ${result.charAt(result.length -1)}`
+    let result = splitStr.join(' ');
+    if (!isNaN(result.charAt(result.length - 1)))
+        result = `${result.substr(0, result.length - 1)} ${result.charAt(result.length -1)}`
+
+    return result
 }
 
 // Step 1: Fetch html page of any slippi profile (we don't care about the dynamic/js
@@ -102,13 +109,6 @@ let ranks = eval(`${rankFunc}(${toExecuteInEval.toString()})()`)
 const formattedRanks = {}
 
 Object.keys(ranks).forEach((key) => formattedRanks[key] = ranks[key].map((rankEntry) => {
-    let override = Object.entries(CUSTOM_RANK_OVERRIDE).find((e) => rankEntry.name.startsWith(e[0]))
-
-    if (override) {
-        // apply override (e.g. Plat => Platinum)
-        rankEntry.name = rankEntry.name.replace(override[0], override[1])
-    }
-
     return {
         name: rankCase(rankEntry.name),
         max: rankEntry.max.toNumber(),
@@ -122,6 +122,9 @@ writeFileSync('ranks.json', JSON.stringify(formattedRanks, null, 2))
 console.log("[3] Ranks saved")
 
 const rankImagesFunc = await (async () => {
+    if (!existsSync("public/imgs"))
+        mkdirSync("public/imgs")
+
     let imageFunc = matchFirstOr(js, /var uW=.+?static\/media\/rank.+?grandmaster.+?svg"}/g, "Couldn't find image func.")
     
     const imageMap = eval(`
