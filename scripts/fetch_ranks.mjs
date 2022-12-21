@@ -3,7 +3,7 @@
 // without having to find them in the source js manually + format them.
 
 import { existsSync, fstat, mkdirSync, write, writeFileSync } from "fs"
-import BigNumber from "./include/bignum.mjs"
+import BigNumber from "bignumber.js"
 import sharp from 'sharp'
 
 // Utilities
