@@ -1,11 +1,11 @@
 import { FastifyInstance } from "fastify"
-import { fetchStats } from "../client"
+import { fetchMultipleStats, fetchStats } from "../client"
 import { SuffixOptions } from "../types"
 import { formattedCodeIfValid } from "../util"
 
 export default function rankRoute(fastify: FastifyInstance) {
     // v1
-    fastify.get<{
+    fastify.route<{
         Params: {
             code: string
         }
@@ -16,21 +16,36 @@ export default function rankRoute(fastify: FastifyInstance) {
             dontRoundRating: string // legacy, keeping it so links using this work as intended
             raw: string
         } & SuffixOptions
-    }>('/rank/:code', async (request, reply) => {
+    }>({method: ['GET', 'POST'], url: '/rank/:code', handler: async (request) => {
         const { code: urlCode } = request.params
         const query = request.query
     
         const code = formattedCodeIfValid(urlCode)
     
+        // handle post in case u want the raw data for more than one code
+        if (query.raw !== undefined) {
+            if (code)
+                return await fetchStats(code)
+            
+            if (!Array.isArray(request.body) || request.body.length === 0)
+                throw new Error("Body should be a json array with more than 0 entries.")
+
+            const input = request.body.map((code) => {
+                let newCode = formattedCodeIfValid(code)
+                if (newCode === undefined)
+                    throw new Error(`Code ${code} is not valid!`)
+                
+                return newCode
+            })
+
+            // using set so we get unique entries
+            return await fetchMultipleStats(...new Set<any>(input))
+        }
         if (code) {
             const stats = await fetchStats(code)
     
             if (!stats)
                 return "Couldn't fetch stats!"
-    
-            if (query.raw !== undefined) {
-                return stats
-            }
     
             const rankPrefix = stats.leaderboardPlacement ?
                 `Rank ${stats.leaderboardPlacement}${query.hideRegion === undefined ? ` [${stats.leaderboardRegion}]` : ""}` :
@@ -53,5 +68,5 @@ export default function rankRoute(fastify: FastifyInstance) {
         } else {
             return "Given code is not valid! Please check the URL of the command, the code should be formatted like abc-123 instead of ABC#123."
         }
-    })
+    }})
 }
