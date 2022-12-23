@@ -1,0 +1,33 @@
+<style>
+    body {
+        margin: 0;
+        height: 100%;
+        width: 100%;
+    }
+
+    iframe {
+        height: 100%;
+        width: 100%;
+    }
+</style>
+<iframe src="/embed/_content.html" frameborder="0" style="display: none" ></iframe>
+<script>
+    // fetch code
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+    const code = params.code;
+
+    window.onload = () => {
+        const iframe = document.getElementsByTagName('iframe')[0]
+        // pass data to iframe
+        iframe.contentWindow.postMessage({
+            'name': "Fluent",
+            'code': code,
+            'rank': 'Platinum 1',
+            'rating': '2050.32'
+        }, "*")
+
+        iframe.style = undefined
+    }
+</script>
