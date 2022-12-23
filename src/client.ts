@@ -83,7 +83,9 @@ export const fetchMultipleStats = async (...codes: string[]) => {
                 characters: rankProfile?.characters?.map((character: any) => ({
                     characterName: humanize(character.character),
                     gameCount: character.gameCount
-                }))
+                })),
+                dailyGlobalPlacement: rankProfile?.dailyGlobalPlacement,
+                dailyRegionalPlacement: rankProfile?.dailyRegionalPlacement,
             }
 
             console.log(`${userResult.displayName} fetched (rank: ${userResult.rank}, code: ${code})`)
