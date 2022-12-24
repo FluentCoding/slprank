@@ -50,6 +50,7 @@ export const fetchMultipleStats = async (...codes: string[]) => {
         const stats: any = data[userStats]
         const code = codeToLetter.find((entry) => entry.i === userStats)?.code
         const user = stats?.user
+
         if (user && code) {
             // Fetch placement from leaderboards
             let rankRegion
@@ -127,11 +128,7 @@ export const fetchRanks = async () => {
 }
 
 const fetchRegionalLeaderboards = async () => {
-    // reset
-    regionalLeaderboards = {
-        lastUpdated: new Date(),
-        leaderboards: {}
-    }
+    let leaderboards: RegionalLeaderboardsType['leaderboards'] = {}
 
     // fill data for each country which is present in the db
     for (const countryContainer of await fetchAllCountries()) {
@@ -145,7 +142,7 @@ const fetchRegionalLeaderboards = async () => {
             code: p.dataValues.code
         }))
         const stats = await fetchMultipleStats(...players.map((p) => p.code))
-        console.log(stats)
+
         const leaderboard = (await Promise.all(players.map(async (p) => {
             const playerStats = stats?.[p.code]
             if (!playerStats) {
@@ -162,7 +159,13 @@ const fetchRegionalLeaderboards = async () => {
             }
         }))).sort((a, b) => b?.rating - a?.rating)
 
-        regionalLeaderboards.leaderboards[country] = leaderboard
+        leaderboards[country] = leaderboard
+    }
+
+    // update
+    regionalLeaderboards = {
+        lastUpdated: new Date(),
+        leaderboards
     }
 }
 export const startRegionalLeaderboardsRoutine = async () => {

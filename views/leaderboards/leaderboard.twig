@@ -2,7 +2,7 @@
 <title>{{ country  }} leaderboards</title>
 
 <h1 class="center-align">Regional Leaderboard ({{country}})</h1>
-<table class="container">
+<table class="container" style="margin-bottom: 30px">
     <h6 class="right-align">last updated: {{ lastUpdated }}</h5>
     <thead>
         <tr>
@@ -21,10 +21,10 @@
                         width="32"
                         height="32"
                         alt="{{entry.rank}}"
-                        class="responsive-img tooltipped"
+                        class="tooltipped"
                         data-position="left"
                         data-tooltip="{{entry.rank}}"
-                        style="margin-right: 10px">
+                        style="margin-right: 10px; object-fit: contain">
                     {{ loop.index }}
                 </th>
                 <th>{{ entry.name }}</th>
