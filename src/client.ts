@@ -145,8 +145,14 @@ const fetchRegionalLeaderboards = async () => {
             code: p.dataValues.code
         }))
         const stats = await fetchMultipleStats(...players.map((p) => p.code))
+        console.log(stats)
         const leaderboard = (await Promise.all(players.map(async (p) => {
             const playerStats = stats?.[p.code]
+            if (!playerStats) {
+                console.log(`Couldn't retrieve stats of ${p.name} (${p.code})!`)
+                return
+            }
+
             const rating = playerStats?.rating?.toFixed(2) ?? 0
             
             return {
@@ -154,7 +160,7 @@ const fetchRegionalLeaderboards = async () => {
                 rating,
                 rank: (await getRankName({...playerStats, ratingOrdinal: playerStats.rating}))?.name
             }
-        }))).sort((a, b) => b.rating - a.rating)
+        }))).sort((a, b) => b?.rating - a?.rating)
 
         regionalLeaderboards.leaderboards[country] = leaderboard
     }
