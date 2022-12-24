@@ -1,8 +1,10 @@
 import axios from 'axios'
+import { CronJob } from 'cron'
 import { FirebaseOptions, initializeApp } from 'firebase/app'
 import { getDatabase, onValue, ref } from 'firebase/database'
 import { readFileSync } from 'fs'
-import { LeaderboardType, RanksType } from './types'
+import { fetchAllCountries, Player } from './db'
+import { LeaderboardType, RanksType, RegionalLeaderboardsType } from './types'
 import { humanize } from './util'
 
 const numberToLowercaseLetter = (num: number) => {
@@ -20,6 +22,7 @@ const numberToLowercaseLetter = (num: number) => {
   
 
 let ranks: RanksType | undefined
+let regionalLeaderboards: RegionalLeaderboardsType;
 let leaderboards: LeaderboardType = {};
 export const fetchStats = async (code: string) => {
     return (await fetchMultipleStats(code))?.[code]
@@ -65,11 +68,7 @@ export const fetchMultipleStats = async (...codes: string[]) => {
             }
 
             const rankProfile = user.rankedNetplayProfile
-
-            // Fetch rank from json
-            let ranks = await fetchRanks()
-            let rank = ranks?.[rankProfile?.dailyGlobalPlacement && rankProfile?.dailyRegionalPlacement ? 'true' : 'false']
-                .find((entry) => rankProfile?.ratingOrdinal >= entry.min && rankProfile?.ratingOrdinal <= entry.max)
+            const rank = await getRankName(rankProfile)
 
             const userResult = {
                 displayName: user.displayName,
@@ -125,4 +124,61 @@ export const fetchRanks = async () => {
     }
 
     return ranks
+}
+
+const fetchRegionalLeaderboards = async () => {
+    // reset
+    regionalLeaderboards = {
+        lastUpdated: new Date(),
+        leaderboards: {}
+    }
+
+    // fill data for each country which is present in the db
+    for (const countryContainer of await fetchAllCountries()) {
+        const country = countryContainer.DISTINCT;
+
+        const data = await Player.findAll({
+            where: { countryCode: country }
+        })
+        const players = data.map((p) => ({
+            name: p.dataValues.name,
+            code: p.dataValues.code
+        }))
+        const stats = await fetchMultipleStats(...players.map((p) => p.code))
+        const leaderboard = (await Promise.all(players.map(async (p) => {
+            const playerStats = stats?.[p.code]
+            const rating = playerStats?.rating?.toFixed(2) ?? 0
+            
+            return {
+                ...p,
+                rating,
+                rank: (await getRankName({...playerStats, ratingOrdinal: playerStats.rating}))?.name
+            }
+        }))).sort((a, b) => b.rating - a.rating)
+
+        regionalLeaderboards.leaderboards[country] = leaderboard
+    }
+}
+export const startRegionalLeaderboardsRoutine = async () => {
+    // we should only be able to start the cronjob when the regional leaderboards are empty
+    if (regionalLeaderboards)
+        return;
+    
+    // first fetch
+    await fetchRegionalLeaderboards()
+
+    // runs every hour, e.g. 1PM, 2PM, ...
+    const job = new CronJob('0 0 */1 * * *', fetchRegionalLeaderboards)
+    job.start()
+}
+export const getRegionalLeaderboards = () => regionalLeaderboards
+
+export const getRankName = async (rankProfile: {
+    dailyGlobalPlacement: any
+    dailyRegionalPlacement: any
+    ratingOrdinal: any
+}) => {
+    let ranks = await fetchRanks()
+    return ranks?.[rankProfile?.dailyGlobalPlacement && rankProfile?.dailyRegionalPlacement ? 'true' : 'false']
+        .find((entry) => rankProfile?.ratingOrdinal >= entry.min && rankProfile?.ratingOrdinal <= entry.max)
 }

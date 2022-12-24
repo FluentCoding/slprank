@@ -3,13 +3,16 @@ dotenv.config()
 
 import fastifyFactory from "fastify"
 import path from 'path'
-import { fetchLeaderboards, fetchRanks } from "./client"
+import { fetchLeaderboards, fetchRanks, startRegionalLeaderboardsRoutine } from "./client"
 import fastifyStatic from '@fastify/static'
 import registerRoutes from './routes'
 
 // fetch resources
 fetchLeaderboards()
 fetchRanks()
+
+// start fetching routine for regional leaderboards
+startRegionalLeaderboardsRoutine()
 
 const fastify = fastifyFactory()
 

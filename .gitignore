@@ -1,6 +1,8 @@
 node_modules
 build
-.env
 yarn-error.log
-_ranks.ts
+
+.env
+*.db
+
 public/imgs

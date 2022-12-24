@@ -1,3 +1,7 @@
+import { FastifyReply } from "fastify";
+import path from "path";
+import Twig from 'twig';
+
 const connectCodePattern = /^([A-Za-z0-9])+#[0-9]{1,6}$/
 
 export function humanize(input: string) {
@@ -11,4 +15,14 @@ export function formattedCodeIfValid(input: string) {
 
     if (result.length <= 8 && result.match(connectCodePattern))
         return result.toUpperCase()
+}
+
+export async function template(reply: FastifyReply, template: string, twigData?: any) {
+    reply.type('text/html')
+    return new Promise((resolve, reject) => {
+        Twig.renderFile(path.resolve('./views', `${template}.twig`), twigData, (err, html) => {
+          if (err) return reject(err)
+          resolve(html)
+        })
+    })
 }
