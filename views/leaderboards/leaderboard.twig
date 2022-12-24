@@ -1,39 +1,42 @@
 {% include 'include.twig' %}
-<title>{{ country  }} leaderboards</title>
 
-<h1 class="center-align">Regional Leaderboard ({{country}})</h1>
-<table class="container" style="margin-bottom: 30px">
-    <h6 class="right-align">last updated: {{ lastUpdated }}</h5>
-    <thead>
-        <tr>
-            <th></th>
-            <th>Name</th>
-            <th>Slippi Code</th>
-            <th>Rating</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for entry in leaderboard %}
+<body>
+    <title>{{ country  }} leaderboards</title>
+
+    <h1 class="center-align">Regional Leaderboard ({{country}})</h1>
+    <table class="container" style="margin-bottom: 30px">
+        <h6 class="right-align">last updated: {{ lastUpdated }}</h5>
+        <thead>
             <tr>
-                <th class="valign-wrapper">
-                    <img
-                        src="http://slprank.com/imgs/{{entry.rank}}.png"
-                        width="32"
-                        height="32"
-                        alt="{{entry.rank}}"
-                        class="tooltipped"
-                        data-position="left"
-                        data-tooltip="{{entry.rank}}"
-                        style="margin-right: 10px; object-fit: contain">
-                    {{ loop.index }}
-                </th>
-                <th>{{ entry.name }}</th>
-                <th>{{ entry.code }}</th>
-                <th>{{ entry.rating }}</th>
+                <th></th>
+                <th>Name</th>
+                <th>Slippi Code</th>
+                <th>Rating</th>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for entry in leaderboard %}
+                <tr>
+                    <th class="valign-wrapper">
+                        <img
+                            src="http://slprank.com/imgs/{{entry.rank}}.png"
+                            width="32"
+                            height="32"
+                            alt="{{entry.rank}}"
+                            class="tooltipped"
+                            data-position="left"
+                            data-tooltip="{{entry.rank}}"
+                            style="margin-right: 10px; object-fit: contain">
+                        {{ loop.index }}
+                    </th>
+                    <th>{{ entry.name }}</th>
+                    <th>{{ entry.code }}</th>
+                    <th>{{ entry.rating }}</th>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

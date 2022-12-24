@@ -5,47 +5,51 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js" type="text/javascript"></script>
 </head>
 
-<!-- <style>
-    body {
-        background-color: black;
-        color: white;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+<div class="fixed-action-btn" id="dark-toggle">
+  <a class="btn-floating btn-large red">
+    <i class="large material-icons" id="dark-toggle-icon">brightness_4</i>
+  </a>
+</div>
+
+<style>
+    /* Simple dark mode implementation */
+    body.dark {
+        background-color: #121212;
+        color: white
+    }
+    .dark h6 {
+        color: #B3B3B3
+    }
+    .dark tr {
+        border-bottom: 1px solid rgba(255,255,255,0.12)
+    }
+    #dark-toggle {
+        user-select: none
+    }
+</style>
+
+<script>
+    const body = document.getElementsByTagName('body')[0]
+    const isDarkMode = localStorage.getItem('lightMode') === null
+    
+    const darkToggleBtn = document.getElementById("dark-toggle")
+    const darkToggleIcon = document.getElementById("dark-toggle-icon")
+
+    // Default behaviour should be dark mode
+    if (isDarkMode) {
+        body.classList.toggle('dark')
+        darkToggleIcon.textContent = 'brightness_high'
     }
 
-    .title {
-        width: 100%;
-        text-align: center;
-        font-size: 3em;
-        margin-bottom: 40px;
-    }
-
-    .container {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        width: 100%;
-    }
-
-    a {
-        color: inherit;
-        text-decoration: inherit;
-        border: 3px white solid;
-        border-radius: 5px;
-        padding: 6px 20px;
-        font-size: 2em;
-        transition: 0.2s ease-in-out;
-        cursor: pointer;
-    }
-    a:hover {
-        border: 3px gray solid;
-    }
-
-    table {
-        border-spacing: 15px 5px;
-    }
-
-    th {
-        font-weight: normal;
-        font-size: 1.5em;
-    }
-</style> -->
+    darkToggleBtn.addEventListener('click', () => {
+        if (darkToggleIcon.textContent === 'brightness_4') {
+            darkToggleIcon.textContent = 'brightness_high'
+            body.classList.toggle('dark')
+            localStorage.removeItem('lightMode')
+        } else {
+            darkToggleIcon.textContent = 'brightness_4'
+            body.classList.toggle('dark')
+            localStorage.setItem('lightMode', 1)
+        }
+    })
+</script>
