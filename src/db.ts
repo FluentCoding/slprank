@@ -11,6 +11,6 @@ export const Player = sequelize.define('Player', {
 
 Player.sync({ alter: true })
 
-export const fetchAllCountries = (): Promise<[{DISTINCT: string}]> => {
-    return Player.aggregate('countryCode', 'DISTINCT', { plain: false })
+export const fetchAllCountries = async (): Promise<string[]> => {
+    return (await Player.aggregate('countryCode', 'DISTINCT', { plain: false }) as [{DISTINCT: string}]).map(e => e.DISTINCT) ?? []
 }

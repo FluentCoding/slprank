@@ -32,9 +32,8 @@ function timeSince(date: Date) {
 }
 
 async function fetchDashboard(reply: FastifyReply) {
-    const countries = (await fetchAllCountries()).map((c) => c.DISTINCT)
     return await template(reply, 'leaderboards/dashboard', {
-        countries
+        countries: await fetchAllCountries()
     })
 }
 
@@ -47,16 +46,22 @@ export default function leaderboardsRoute(fastify: FastifyInstance) {
             country: string
         }
     }>('/leaderboards/:country', async (request, reply) => {
-        const { country } = request.params
+        let { country } = request.params
 
         if (!country) return await fetchDashboard(reply)
+        country = country.toUpperCase()
 
         const regionalLeaderboards = getRegionalLeaderboards()
 
-        const lastUpdated = regionalLeaderboards.lastUpdated
-        const leaderboard = regionalLeaderboards.leaderboards[country]
+        const lastUpdated = regionalLeaderboards?.lastUpdated
+        const leaderboard = regionalLeaderboards?.leaderboards[country]
 
-        if (!leaderboard) return "Please refresh in a couple of seconds. The leaderboard is still being retrieved."
+        if (!leaderboard) {
+          if ((await fetchAllCountries()).includes(country))
+            return "Please refresh in a couple of seconds. The leaderboard is still being retrieved."
+          else
+            return "No leaderboard exists for this country."
+        }
 
         return await template(reply, 'leaderboards/leaderboard', {
             country,

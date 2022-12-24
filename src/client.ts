@@ -131,9 +131,7 @@ const fetchRegionalLeaderboards = async () => {
     let leaderboards: RegionalLeaderboardsType['leaderboards'] = {}
 
     // fill data for each country which is present in the db
-    for (const countryContainer of await fetchAllCountries()) {
-        const country = countryContainer.DISTINCT;
-
+    for (const country of await fetchAllCountries()) {
         const data = await Player.findAll({
             where: { countryCode: country }
         })
