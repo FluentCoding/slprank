@@ -1,8 +1,14 @@
+# node
 node_modules
 build
 yarn-error.log
 
-.env
+# files that have to be fetched by the provided scripts
+public/imgs
+
+# workspace-related
 *.db
 
-public/imgs
+# secrets (& workspace related)
+creds.json
+.env
