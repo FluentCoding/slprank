@@ -29,6 +29,31 @@
     #dark-toggle {
         user-select: none
     }
+    
+    /* Navbar */
+    .navbar {
+        margin: 0 auto;
+        margin-top: 5px;
+        max-width: 1280px;
+        width: 90%;
+        gap: 5px;
+
+        display: flex;
+        justify-content: right;
+    }
+
+    @media screen and (max-width: 600px) {
+        .navbar {
+            width: 100%;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .navbar a {
+            margin-bottom: 2px;
+            width: 90%;
+        }
+    }
 </style>
 
 <script>
@@ -56,3 +81,13 @@
         }
     })
 </script>
+
+<div class="navbar">
+    <!-- <a class="waves-effect waves-light btn-small"><i class="material-icons left">login</i>Log in with Google</a> -->
+    <a
+        class="waves-effect waves-light btn-small green"
+        target="_blank"
+        href="https://docs.google.com/forms/d/e/1FAIpQLSf4noh7GbE2X6VvwQD_sdJeyv8oDoMEcNXYno5ZWNS4J1XDIg/viewform">
+            <i class="material-icons left">group_add</i>Get added
+    </a>
+</div>
