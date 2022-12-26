@@ -129,33 +129,38 @@ export const fetchRanks = async () => {
 
 const fetchRegionalLeaderboards = async () => {
     let leaderboards: RegionalLeaderboardsType['leaderboards'] = {}
+    let players = (await Player.findAll()).map((p) => ({
+        name: p.dataValues.name,
+        code: p.dataValues.code,
+        countryCode: p.dataValues.countryCode
+    }))
+    const stats = await fetchMultipleStats(...players.map((p) => p.code))
+
+    players = players.filter((p) => {
+        if (!stats?.[p.code]) {
+            console.log(`Couldn't retrieve stats of ${p.name} (${p.code})!`)
+            return false
+        }
+
+        return true
+    })
 
     // fill data for each country which is present in the db
     for (const country of await fetchAllCountries()) {
-        const data = await Player.findAll({
-            where: { countryCode: country }
-        })
-        const players = data.map((p) => ({
-            name: p.dataValues.name,
-            code: p.dataValues.code
-        }))
-        const stats = await fetchMultipleStats(...players.map((p) => p.code))
-
-        const leaderboard = (await Promise.all(players.map(async (p) => {
-            const playerStats = stats?.[p.code]
-            if (!playerStats) {
-                console.log(`Couldn't retrieve stats of ${p.name} (${p.code})!`)
-                return
-            }
-
-            const rating = playerStats?.rating?.toFixed(2) ?? 0
-            
-            return {
-                ...p,
-                rating,
-                rank: (await getRankName({...playerStats, ratingOrdinal: playerStats.rating}))?.name
-            }
-        }))).sort((a, b) => b?.rating - a?.rating)
+        const leaderboard = (await Promise.all(
+            players
+                .filter((p) => p.countryCode === country)
+                .map(async (p) => {
+                    const playerStats = stats?.[p.code]
+                    const rating = playerStats?.rating?.toFixed(2) ?? 0
+                    
+                    return {
+                        ...p,
+                        rating,
+                        rank: (await getRankName({...playerStats, ratingOrdinal: playerStats.rating}))?.name
+                    }
+                })
+        )).sort((a, b) => b?.rating - a?.rating)
 
         leaderboards[country] = leaderboard
     }
