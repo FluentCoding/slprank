@@ -10,7 +10,7 @@
             <tr>
                 <th></th>
                 <th>Name</th>
-                <th>Slippi Code</th>
+                <th>W/L</th>
                 <th>Rating</th>
             </tr>
         </thead>
@@ -29,8 +29,8 @@
                             style="margin-right: 10px; object-fit: contain">
                         {{ loop.index }}
                     </th>
-                    <th>{{ entry.name }}</th>
-                    <th>{{ entry.code }}</th>
+                    <th><div>{{ entry.name }}<span>{{ entry.code }}</span></div></th>
+                    <th class="player-wl"><span class="player-wins">{{ entry.wins }}</span> / <span class="player-losses">{{ entry.losses }}</span></th>
                     <th>{{ entry.rating }}</th>
                 </tr>
             {% endfor %}

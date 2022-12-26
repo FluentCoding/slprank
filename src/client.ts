@@ -153,10 +153,14 @@ const fetchRegionalLeaderboards = async () => {
                 .map(async (p) => {
                     const playerStats = stats?.[p.code]
                     const rating = playerStats?.rating?.toFixed(2) ?? 0
+                    const wins = playerStats?.wins
+                    const losses = playerStats?.losses
                     
                     return {
                         ...p,
                         rating,
+                        wins,
+                        losses,
                         rank: (await getRankName({...playerStats, ratingOrdinal: playerStats.rating}))?.name
                     }
                 })
