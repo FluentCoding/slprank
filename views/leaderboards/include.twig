@@ -88,10 +88,17 @@
 
 <div class="navbar">
     <!-- <a class="waves-effect waves-light btn-small"><i class="material-icons left">login</i>Log in with Google</a> -->
+    {% if showBack %}
+    <a
+        class="waves-effect waves-light btn-small red"
+        href="/leaderboards">
+            <i class="material-icons left">arrow_back</i>countries
+    </a>
+    {% endif %}
     <a
         class="waves-effect waves-light btn-small green"
         target="_blank"
         href="https://docs.google.com/forms/d/e/1FAIpQLSf4noh7GbE2X6VvwQD_sdJeyv8oDoMEcNXYno5ZWNS4J1XDIg/viewform">
-            <i class="material-icons left">group_add</i>Get added
+            <i class="material-icons left">group_add</i>get added
     </a>
 </div>
