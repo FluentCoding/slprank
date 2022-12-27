@@ -38,7 +38,7 @@ export default function leaderboardsRoute(fastify: FastifyInstance) {
         return await template(reply, 'leaderboards/leaderboard', {
             country,
             leaderboard,
-            lastUpdated: `${timeSince(lastUpdated)} ago. (${lastUpdated.toUTCString()})`
+            lastUpdated: `${timeSince(lastUpdated)} ago (${lastUpdated.toUTCString()})`
         })
     })
 }

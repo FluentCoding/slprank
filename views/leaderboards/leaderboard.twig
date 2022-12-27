@@ -1,10 +1,10 @@
 {% include 'include.twig' with {'showBack': true} %}
 
 <body>
-    <title>{{ country }} leaderboards</title>
+    <title>{{ country }} Leaderboards</title>
 
-    <h1 class="center-align">Regional Leaderboard ({{country}})</h1>
-    <h6 class="right-align container">last updated: {{ lastUpdated }}</h5>
+    <h1 class="center-align">{{country}} Leaderboards</h1>
+    <h6 class="right-align container">last updated {{ lastUpdated }}</h5>
     <table class="container striped" style="margin-bottom: 30px">
         <thead>
             <tr>
@@ -29,7 +29,7 @@
                             style="margin-right: 10px; object-fit: contain">
                         {{ loop.index }}
                     </th>
-                    <th><div>{{ entry.name }}<span>{{ entry.code }}</span></div></th>
+                    <th><a href="https://slippi.gg/user/{{ entry.code|replace({'#': '-'}) }}" target="_blank">{{ entry.name }}<span>{{ entry.code }}</span></a></th>
                     <th class="player-wl"><span class="player-wins">{{ entry.wins }}</span> / <span class="player-losses">{{ entry.losses }}</span></th>
                     <th>{{ entry.rating }}</th>
                 </tr>
