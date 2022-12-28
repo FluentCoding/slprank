@@ -3,7 +3,13 @@
 <body>
     <title>{{ country }} Leaderboards</title>
 
-    <h1 class="center-align">{{country}} Leaderboards</h1>
+    <h1 class="center-align">
+        {% if country == 'ALL' %}
+        All Leaderboards
+        {% else %}
+        {{country}} Leaderboards
+        {% endif %}
+    </h1>
     <h6 class="right-align container">last updated {{ lastUpdated }}</h5>
     <table class="container striped" style="margin-bottom: 30px">
         <thead>
@@ -12,6 +18,9 @@
                 <th>Name</th>
                 <th>W/L</th>
                 <th>Rating</th>
+                {% if country == 'ALL' %}
+                <th>Country</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -32,6 +41,19 @@
                     <th><a href="https://slippi.gg/user/{{ entry.code|replace({'#': '-'}) }}" target="_blank">{{ entry.name }}<span>{{ entry.code }}</span></a></th>
                     <th class="player-wl"><span class="player-wins">{{ entry.wins }}</span> / <span class="player-losses">{{ entry.losses }}</span></th>
                     <th>{{ entry.rating }}</th>
+                    {% if country == 'ALL' %}
+                    <th class="valign-wrapper">
+                        <img
+                            src="https://www.countryflagicons.com/FLAT/32/{{entry.country}}.png"
+                            width="32"
+                            height="32"
+                            alt="{{entry.rank}}"
+                            class="tooltipped"
+                            data-position="right"
+                            data-tooltip="{{entry.country}}"
+                            style="margin-right: 10px; object-fit: contain">
+                    </th>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>

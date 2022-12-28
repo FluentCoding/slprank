@@ -149,7 +149,8 @@ const fetchRegionalLeaderboards = async () => {
     for (const country of await fetchAllCountries()) {
         const leaderboard = (await Promise.all(
             players
-                .filter((p) => p.countryCode === country)
+                .filter((p) => country === "ALL" || p.countryCode === country)
+                .filter((p, i, arr) => arr.findIndex((temp) => temp.code === p.code) === i) // we dont want multiple entries with the same code
                 .map(async (p) => {
                     const playerStats = stats?.[p.code]
                     const rating = playerStats?.rating?.toFixed(2) ?? 0
@@ -161,6 +162,7 @@ const fetchRegionalLeaderboards = async () => {
                         rating,
                         wins,
                         losses,
+                        country: country === "ALL" ? p.countryCode : undefined,
                         rank: (await getRankName({...playerStats, ratingOrdinal: playerStats.rating}))?.name
                     }
                 })
