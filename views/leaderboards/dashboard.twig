@@ -1,9 +1,23 @@
 {% include 'include.twig' %}
-<title>Regional leaderboards</title>
+<title>Regional Leaderboards</title>
 
 <h1 class="center-align">Regional Leaderboards</h1>
 <div class="center-align">
     {% for country in countries %}
-        <a class="waves-effect waves-light btn" href="/leaderboards/{{ country }}">{{ country }}</a>
+        <a class="waves-effect waves-light btn" href="/leaderboards/{{ country.code }}">
+            {% if country.code == 'ALL' %}
+            All | 
+            {% else %}
+            <img
+                src="https://www.countryflagicons.com/FLAT/32/{{ country.code }}.png"
+                width="32"
+                height="32"
+                class="left"
+                style="margin-right: 5px;margin-top: 2px"
+                alt="{{entry.rank}}">
+            {% endif %}
+            {{ country.amount }}
+            <i class="material-icons right" style="margin-left: 5px">group</i>
+        </a>
     {% endfor %}
 </div>

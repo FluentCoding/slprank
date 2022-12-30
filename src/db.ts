@@ -11,6 +11,10 @@ export const Player = sequelize.define('Player', {
 
 Player.sync({ alter: true })
 
-export const fetchAllCountries = async (): Promise<string[]> => {
-    return [...(await Player.aggregate('countryCode', 'DISTINCT', { plain: false }) as [{DISTINCT: string}]).map(e => e.DISTINCT), "ALL"]
+export const fetchAllCountries = async (): Promise<{code: string, amount: number}[]> => {
+    const countries = (await Player.findAll({
+        attributes: ['countryCode', [Sequelize.fn('count', Sequelize.col('countryCode')), 'amount']],
+        group: ['countryCode']
+    })).map((e) => ({code: e.dataValues.countryCode, amount: e.dataValues.amount}))
+    return [...countries, {code: 'ALL', amount: countries?.reduce((p, c) => p + c.amount, 0) ?? 0}]
 }

@@ -18,7 +18,7 @@ export function formattedCodeIfValid(input: string) {
 }
 
 export async function template(reply: FastifyReply, template: string, twigData?: any) {
-    reply.type('text/html')
+    reply.header('Content-Type', 'text/html; charset=utf-8')
     return new Promise((resolve, reject) => {
         Twig.renderFile(path.resolve('./views', `${template}.twig`), twigData, (err, html) => {
           if (err) return reject(err)

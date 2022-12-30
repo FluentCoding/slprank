@@ -29,7 +29,7 @@ export default function leaderboardsRoute(fastify: FastifyInstance) {
         const leaderboard = regionalLeaderboards?.leaderboards[country]
 
         if (!leaderboard) {
-          if ((await fetchAllCountries()).includes(country))
+          if ((await fetchAllCountries()).some(c => c.code === country))
             return "Please refresh in a couple of seconds. The leaderboard is still being retrieved."
           else
             return "No leaderboard exists for this country."
