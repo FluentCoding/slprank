@@ -4,7 +4,7 @@
 <h1 class="center-align">Regional Leaderboards</h1>
 <div class="center-align">
     {% for country in countries %}
-        <a class="waves-effect waves-light btn" href="/leaderboards/{{ country.code }}">
+        <a class="waves-effect waves-light btn" href="/leaderboards/{{ country.code }}" style="margin: 2px">
             {% if country.code == 'ALL' %}
             All | 
             {% else %}
