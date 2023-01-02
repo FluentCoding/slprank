@@ -38,7 +38,7 @@
                             style="margin-right: 10px; object-fit: contain">
                         {{ loop.index }}
                     </th>
-                    <th><a href="https://slippi.gg/user/{{ entry.code|replace({'#': '-'}) }}" target="_blank">{{ entry.name }}<span>{{ entry.code }}</span></a></th>
+                    <th><a class="player-link" href="https://slippi.gg/user/{{ entry.code|replace({'#': '-'}) }}" target="_blank">{{ entry.name }}<span>{{ entry.code }}</span></a></th>
                     <th class="player-wl"><span class="player-wins">{{ entry.wins }}</span> / <span class="player-losses">{{ entry.losses }}</span></th>
                     <th>{{ entry.rating }}</th>
                     {% if country == 'ALL' %}
