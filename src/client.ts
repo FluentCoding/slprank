@@ -30,6 +30,13 @@ export const fetchStats = async (code: string) => {
 export const fetchMultipleStats = async (...codes: string[]) => {
     if (codes.length === 0)
         return;
+    
+    let result: Record<string, any> = {}
+
+    if (codes.length > 50) {
+        result = await fetchMultipleStats(...codes.slice(50)) ?? {}
+        codes = codes.slice(0, 50)
+    }
 
     const codeToLetter = codes.map((code, i) => ({code, i: numberToLowercaseLetter(i + 1)}))
     const data = (await axios.post(process.env.SLIPPI_GRAPHQL!, {
@@ -42,8 +49,6 @@ export const fetchMultipleStats = async (...codes: string[]) => {
             }
         `
     })).data.data
-
-    let result: Record<string, any> = {}
 
     console.log("---")
     for (const userStats of Object.keys(data)) {
@@ -197,6 +202,6 @@ export const getRankName = async (rankProfile: {
     ratingOrdinal: any
 }) => {
     let ranks = await fetchRanks()
-    return ranks?.[rankProfile?.dailyGlobalPlacement && rankProfile?.dailyRegionalPlacement ? 'true' : 'false']
+    return ranks?.[rankProfile?.dailyGlobalPlacement || rankProfile?.dailyRegionalPlacement ? 'true' : 'false']
         .find((entry) => rankProfile?.ratingOrdinal >= entry.min && rankProfile?.ratingOrdinal <= entry.max)
 }
