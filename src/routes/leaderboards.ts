@@ -4,8 +4,13 @@ import { fetchAllCountries, Player } from "../db"
 import { template, timeSince } from "../util"
 
 async function fetchDashboard(reply: FastifyReply) {
+    const regionalLeaderboards = getRegionalLeaderboards()
+    const countries = regionalLeaderboards ? Object.keys(regionalLeaderboards.leaderboards).map(k => ({
+        code: k,
+        amount: regionalLeaderboards.leaderboards[k].length
+    })) : await fetchAllCountries()
     return await template(reply, 'leaderboards/dashboard', {
-        countries: await fetchAllCountries()
+        countries
     })
 }
 
