@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply } from "fastify"
 import { getRegionalLeaderboards } from "../client"
 import { fetchAllCountries, Player } from "../db"
-import { template, timeSince } from "../util"
+import { template, timeSince, countryNameFromCode } from "../util"
 
 async function fetchDashboard(reply: FastifyReply) {
     const regionalLeaderboards = getRegionalLeaderboards()
@@ -41,7 +41,7 @@ export default function leaderboardsRoute(fastify: FastifyInstance) {
         }
 
         return await template(reply, 'leaderboards/leaderboard', {
-            country,
+            country: country === "ALL" ? "All" : countryNameFromCode(country),
             leaderboard,
             lastUpdated: `${timeSince(lastUpdated)} ago (${lastUpdated.toUTCString()})`
         })

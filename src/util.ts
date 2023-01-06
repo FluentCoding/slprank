@@ -3,10 +3,15 @@ import path from "path";
 import Twig from 'twig';
 
 const connectCodePattern = /^([A-Za-z0-9])+#[0-9]{1,6}$/
+const countryIntl = new Intl.DisplayNames(['en'], { type: 'region' })
 
 export function humanize(input: string) {
     if (input)
         return input.toLowerCase().replace(/(?:_| |\b)(\w)/g, function($1){return $1.toUpperCase().replace('_',' ');});
+}
+
+export function countryNameFromCode(code: string) {
+  return countryIntl.of(code)
 }
 
 export function numberToLowercaseLetter(num: number) {
