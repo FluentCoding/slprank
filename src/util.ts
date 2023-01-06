@@ -9,6 +9,19 @@ export function humanize(input: string) {
         return input.toLowerCase().replace(/(?:_| |\b)(\w)/g, function($1){return $1.toUpperCase().replace('_',' ');});
 }
 
+export function numberToLowercaseLetter(num: number) {
+  const base = 'a'.charCodeAt(0);
+  const letters = [];
+
+  do {
+    num -= 1;
+    letters.unshift(String.fromCharCode(base + (num % 26)));
+    num = Math.floor(num / 26);
+  } while (num > 0);
+
+  return letters.join('');
+}
+
 /// if it returns nothing, this means that the input code wasn't valid
 export function formattedCodeIfValid(input: string) {
     let result = input.replace("-", "#")

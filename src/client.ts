@@ -5,21 +5,7 @@ import { getDatabase, onValue, ref } from 'firebase/database'
 import { readFileSync } from 'fs'
 import { fetchAllCountries, Player } from './db'
 import { LeaderboardType, RanksType, RegionalLeaderboardsType } from './types'
-import { humanize } from './util'
-
-const numberToLowercaseLetter = (num: number) => {
-    const base = 'a'.charCodeAt(0);
-    const letters = [];
-  
-    do {
-      num -= 1;
-      letters.unshift(String.fromCharCode(base + (num % 26)));
-      num = Math.floor(num / 26);
-    } while (num > 0);
-  
-    return letters.join('');
-}
-  
+import { humanize, numberToLowercaseLetter } from './util'
 
 let ranks: RanksType | undefined
 let regionalLeaderboards: RegionalLeaderboardsType;
@@ -39,16 +25,22 @@ export const fetchMultipleStats = async (...codes: string[]) => {
     }
 
     const codeToLetter = codes.map((code, i) => ({code, i: numberToLowercaseLetter(i + 1)}))
-    const data = (await axios.post(process.env.SLIPPI_GRAPHQL!, {
-        "operationName": "AccountManagementPageQuery",
-        "variables": Object.fromEntries(codeToLetter.map((entry) => ([entry.i, entry.code]))),
-        "query": `
-            fragment u on User{displayName rankedNetplayProfile{ratingOrdinal wins losses dailyGlobalPlacement dailyRegionalPlacement continent characters{character gameCount}}}
-            query AccountManagementPageQuery(${codeToLetter.map((entry) => `$${entry.i}:String`).reduce((p, c) => `${p},${c}`)}){
-                ${codeToLetter.map((entry) => `${entry.i}:getConnectCode(code:$${entry.i}){user {...u}}`)}
-            }
-        `
-    })).data.data
+    let data
+    try {
+        data = (await axios.post(process.env.SLIPPI_GRAPHQL!, {
+            "operationName": "AccountManagementPageQuery",
+            "variables": Object.fromEntries(codeToLetter.map((entry) => ([entry.i, entry.code]))),
+            "query": `
+                fragment u on User{displayName rankedNetplayProfile{ratingOrdinal wins losses dailyGlobalPlacement dailyRegionalPlacement continent characters{character gameCount}}}
+                query AccountManagementPageQuery(${codeToLetter.map((entry) => `$${entry.i}:String`).reduce((p, c) => `${p},${c}`)}){
+                    ${codeToLetter.map((entry) => `${entry.i}:getConnectCode(code:$${entry.i}){user {...u}}`)}
+                }
+            `
+        })).data.data
+    } catch(e) {
+        console.log("Couldn't fetch data from Slippi.")
+        return undefined;
+    }
 
     console.log("---")
     for (const userStats of Object.keys(data)) {
@@ -140,6 +132,11 @@ const fetchRegionalLeaderboards = async () => {
         countryCode: p.dataValues.countryCode
     }))
     const stats = await fetchMultipleStats(...players.map((p) => p.code))
+
+    if (!stats) {
+        console.log(`Couldn't retrieve stats, skipping this regional leaderboard fetching cycle.`)
+        return
+    }
 
     players = players.filter((p) => {
         if (!stats?.[p.code]) {
