@@ -42,7 +42,6 @@ export const fetchMultipleStats = async (...codes: string[]) => {
         return undefined;
     }
 
-    console.log("---")
     for (const userStats of Object.keys(data)) {
         const stats: any = data[userStats]
         const code = codeToLetter.find((entry) => entry.i === userStats)?.code
@@ -89,7 +88,6 @@ export const fetchMultipleStats = async (...codes: string[]) => {
             result[code] = userResult
         }
     }
-    console.log("---")
 
     return result
 }

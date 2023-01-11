@@ -8,6 +8,7 @@
     "generate-ranks": "node scripts/fetch_ranks.mjs"
   },
   "dependencies": {
+    "@fastify/cors": "^8.2.0",
     "@fastify/static": "^6.6.0",
     "axios": "^1.2.1",
     "cron": "^2.1.0",

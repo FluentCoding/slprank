@@ -5,6 +5,7 @@ import fastifyFactory from "fastify"
 import path from 'path'
 import { fetchLeaderboards, fetchRanks, startRegionalLeaderboardsRoutine } from "./client"
 import fastifyStatic from '@fastify/static'
+import cors from '@fastify/cors'
 import registerRoutes from './routes'
 
 // fetch resources
@@ -15,6 +16,9 @@ fetchRanks()
 startRegionalLeaderboardsRoutine()
 
 const fastify = fastifyFactory()
+
+// allow cors
+fastify.register(cors)
 
 // serve static files
 fastify.register(fastifyStatic, {
